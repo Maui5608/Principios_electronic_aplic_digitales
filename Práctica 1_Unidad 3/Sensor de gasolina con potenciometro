@@ -1,0 +1,30 @@
+from machine import Pin, ADC
+from time import sleep
+
+# Configuración del potenciómetro y los LEDs
+pot = ADC(Pin(25))  # Sin configuración de atenuación
+
+leds = [
+    Pin(15, Pin.OUT),
+    Pin(2, Pin.OUT),
+    Pin(4, Pin.OUT),
+    Pin(16, Pin.OUT),
+    Pin(17, Pin.OUT),
+    Pin(5, Pin.OUT)
+]
+
+# Determinar el rango de cada LED basado en el valor máximo del ADC
+rango_por_led = 4095 / 6
+
+while True:
+    valor = pot.read()  # Leer valor del potenciómetro
+    print(f"Valor del potenciómetro: {valor}")
+
+    # Encender LEDs según el rango
+    for i, led in enumerate(leds):
+        if valor >= rango_por_led * (i + 1):  
+            led.value(1)  # Enciende el LED
+        else:
+            led.value(0)  # Apaga los LEDs que no están en el rango
+
+    sleep(0.1)
