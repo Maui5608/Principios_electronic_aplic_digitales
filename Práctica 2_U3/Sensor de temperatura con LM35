@@ -1,0 +1,39 @@
+from machine import Pin, ADC
+from time import sleep
+
+LM35 = ADC(Pin(25))  
+LM35.atten(ADC.ATTN_11DB)  # Configurarnm la atenuación
+
+led = Pin(13, Pin.OUT)  # Configurar LED como salida
+FC = 3.3 / 4095  # Factor de conversión
+
+while True:
+    bits = LM35.read()
+    valor = bits * FC  # Voltaje
+    mV = valor * 1000  # Convertir a mV
+    Temp = mV / 10  # Temperatura en °C
+    TempF = (Temp * 1.8) + 32  # Convertir a °F
+
+    if TempF >= 90:  
+        print(f"Temperatura: {TempF:2f} °F - ¡Hace mucho calor!")
+        led.value(1)
+        sleep(0.1)
+        led.value(0)
+        sleep(0.1)
+        led.value(1)
+        sleep(0.1)
+        led.value(0)
+        sleep(0.1)
+
+    elif TempF > 60.0:  
+        print(f"Temperatura: {TempF:2f} °F - La temperatura es normal")
+        led.value(1)
+        sleep(0.5)
+        led.value(0)
+        sleep(0.5)
+        led.value(1)
+        sleep(0.5)
+        led.value(0)
+        sleep(0.5)
+
+    sleep(0.5)  
