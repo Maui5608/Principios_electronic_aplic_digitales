@@ -1,0 +1,50 @@
+from machine import Pin, PWM, ADC
+from time import sleep
+
+# Configuración del sensor de temperatura LM35
+LM35 = ADC(Pin(25))  
+LM35.atten(ADC.ATTN_11DB)  # Configurar la atenuación
+
+# Configuración del Servo
+servo = PWM(Pin(15))
+servo.freq(50)
+
+# Factor de conversión
+FC = 3.3 / 4095  
+
+def mover_servo(angulo):
+    duty = int((angulo / 180) * 100 + 25)
+    servo.duty(duty)
+
+def mover_servo_lento():
+    for angulo in range(0, 181, 10):  # Movimiento normal 
+        mover_servo(angulo)
+        sleep(0.2)
+    for angulo in range(180, -1, -10):
+        mover_servo(angulo)
+        sleep(0.2)
+
+def mover_servo_rapido():
+    for angulo in range(0, 181, 30):  # Movimiento más rápido
+        mover_servo(angulo)
+        sleep(0.1)
+    for angulo in range(180, -1, -30):
+        mover_servo(angulo)
+        sleep(0.1)
+
+while True:
+    bits = LM35.read()
+    valor = bits * FC  # Voltaje
+    mV = valor * 1000  # Convertir a mV
+    Temp = mV / 10  # Temperatura en °C
+    TempF = (Temp * 1.8) + 32  # Convertir a °F
+
+    if TempF >= 90:
+        print(f"Temperatura: {TempF:.2f} °F - ¡Hace mucho calor!")
+        mover_servo_rapido()
+    elif TempF > 60.0:
+        print(f"Temperatura: {TempF:.2f} °F - La temperatura es normal")
+        mover_servo_lento()
+    
+    sleep(0.5)
+
